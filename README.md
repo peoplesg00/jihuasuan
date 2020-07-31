@@ -1,5 +1,5 @@
 # jihuasuan
-基于springcloud开发的账单管理管理系统，主要功能为用户管理，权限管理和账单管理
+基于springcloud开发的账单管理管理系统，主要功能为用户管理，权限管理和账单管理     
 在服务注册与发现采用nacos1.1.4   
 在负载均衡采用openfeign   
 在服务降级与熔断采用sentinel1.7.0   
