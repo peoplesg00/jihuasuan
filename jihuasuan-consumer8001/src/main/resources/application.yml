@@ -1,0 +1,39 @@
+#server:
+#  port: 8001
+#spring:
+#  application:
+#    name: nacos-consumer
+#  rabbitmq:
+#    host: localhost
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: 127.0.0.1 #配置Nacos地址
+#    sentinel:
+#      transport:
+#        dashboard: 127.0.0.1:8088
+#      datasource:
+#        ds1:
+#          nacos:
+#            server-addr: 127.0.0.1 #配置Nacos地址
+#            data-id: ${spring.application.name}-sentinel
+#            group-id: DEFAULT_GROUP
+#            data-type: json
+#            rule-type: flow #规则类型
+#  zipkin:
+#    base-url: http://127.0.0.1:9411/  #zipkin server 的请求地址
+#    discovery-client-enabled: false  #让nacos把它当做一个URL，而不要当作为微服务
+#  sleuth:
+#    sampler:
+#      probability: 1.0  #采样后的百分比
+##消费者将要去访问的酸服务名称（注册成功进nacos的微服务提供者）
+#service-url:
+#  nacos-user-service: http://nacos-provider
+#feign:
+#  sentinel:
+#    enabled: true
+#  client:
+#    config:
+#      default:
+#        connect-timeout: 8000
+#        read-timeout: 8000

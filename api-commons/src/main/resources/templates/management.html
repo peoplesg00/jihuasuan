@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>账单系统后台</title>
+    <link rel="stylesheet" href="../static/css/layui.css">
+    <link rel="stylesheet" href="../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../static/css/main.css">
+    <script src="../static/js/layui.js"></script>
+    <script src="../static/js/jquery-3.4.1.js"></script>
+    <script src="../static/js/jquery.cookie.js"></script>
+    <script src="../static/js/bootstrap.js"></script>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">账单系统管理后台</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="#" id="userName"></a>
+            </li>
+            <li class="layui-nav-item"><a href="#" id="getOut">注销</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed" id="user">
+                    <a class="" href="javascript:;">管理员操作</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="#" id="auto">权限管理</a></dd>
+                        <dd><a href="#" id="adm">用户管理</a></dd>
+                        <dd><a href="admin.html">返回账单管理</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;" id="userDo" hidden="hidden">
+            <h2 id="D"></h2>
+            <div class="table-wrapper">
+                <table class="fl-table">
+                    <thead id="admin" hidden="hidden">
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>权限等级</th>
+                        <th>密保问题</th>
+                        <th>注册时间</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <thead id="Authority" hidden="hidden">
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>权限等级</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="data">
+
+                    <tbody>
+                </table>
+                <div style="width: 300px; margin:20px auto;">
+                    <button class="btn bg-success" id="LastPage">上一页</button>
+                    <label class="btn bg-success">第<span style="margin: 5px;" id="PageNumber"></span>页</label>
+                    <button class="btn bg-success" id="NextPage">下一页</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        © lijinru.com - 底部固定区域
+    </div>
+</div>
+<script>
+    const name = getMyCookie("username").length === 0 ? localStorage.getItem("user") : getMyCookie("username");
+    const grade = getMyCookie("grade").length === 0 ? localStorage.getItem("grade") : getMyCookie("grade");
+    let first = false;
+    let last = false;
+    let number = "";
+    let offset = 1;
+    let limit = 20;
+    if (grade.length > 0 && grade === "1" && name.length > 0) {
+        $("#userName").text("管理员：" + name);
+    }
+    //退出登录
+    $("#getOut").on("click", function () {
+        if (confirm("是否注销") === true) {
+            localStorage.removeItem("user");
+            localStorage.removeItem("grade");
+            localStorage.removeItem("code");
+            $.ajax({
+                url: "http://localhost:7001/provider-serv/consumer/loginOut",
+                type: "GET",
+                data: {"username": name},
+                crossDomain: true,
+                xhrFields: {withCredentials: true},
+                success: function () {
+                    window.location.href = "./login.html";
+                }
+            });
+        } else {
+            return false;
+        }
+    });
+
+    //上一页
+    $("#LastPage").on("click", function () {
+        if (first === true) {
+            first = false;
+            offset = 1;
+            alert("已为第一页");
+            return false;
+        }
+        selectUser(--offset, limit);
+    });
+
+    //下一页
+    $("#NextPage").on("click", function () {
+        if (last === true) {
+            last = false;
+            alert("已为最后一页");
+            return false;
+        }
+        selectUser(++offset, limit);
+    });
+
+    //权限管理
+    $("#auto").on("click", function () {
+        number = "M";
+        selectUser(1, 20);
+    });
+    //用户
+    $("#adm").on("click", function () {
+        number = "U";
+        selectUser(1, 20);
+    });
+
+    //查询
+    function selectUser(offset, limit) {
+        $.ajax({
+            url: "http://localhost:7001/provider-serv/consumer/user/queryAllByLimit",
+            type: "GET",
+            data: {"offset": offset, "limit": limit},
+            dataType: "json",
+            success: function (data) {
+                if (data.code === 200 && data.data.list.length > 0) {
+                    if (number === "U") {
+                        showUser(data, "用户管理");
+                    } else if (number === "M") {
+                        showManager(data, "权限管理");
+                    }
+                } else {
+                    alert(data.msg);
+                }
+            }
+        });
+    }
+
+    //用户操作
+    function showUser(data, D) {
+        $("#userDo").show();
+        $("#Authority").hide();
+        $("#admin").show();
+        $("#data").html("");
+        $("#D").text(D.toString());
+        $("#PageNumber").text(data.data.pageNum);
+        for (let i = 0; i < data.data.list.length; i++) {
+            let time = new Date(data.data.list[i].createTime);
+            let Time = time.getFullYear() + "-" + (time.getMonth() + 1) + "-" + time.getDate();
+            let id = data.data.list[i].id;
+            let pageNum = data.data.pageNum;
+            let pageSize = data.data.pageSize;
+            let dom = "<tr>" +
+                "<td class='success'>" + (data.data.list[i].id == null ? (i + 1) : data.data.list[i].id) + "</td>" +
+                "<td class='error'>" + (data.data.list[i].username == null ? "无" : data.data.list[i].username) + "</td>" +
+                "<td class='warning'>" + (data.data.list[i].grade == null ? "无" : data.data.list[i].grade) + "</td>" +
+                "<td class='info'>" + (data.data.list[i].question == null ? "无" : data.data.list[i].question) + "</td>" +
+                "<td class='error'>" + (data.data.list[i].createTime == null ? 0 : Time) + "</td>" +
+                "<td class='success'><a href='#' onclick='deleteUser(" + id + "," + pageNum + "," + pageSize + ");'>删除</a></td>" +
+                "</tr>";
+            $("#data").append(dom);
+        }
+        data.data.isFirstPage == true ? first = true : first = false;
+        data.data.isLastPage == true ? last = true : last = false;
+    }
+
+    //权限操作
+    function showManager(data, D) {
+        $("#userDo").show();
+        $("#Authority").show();
+        $("#admin").hide();
+        $("#data").html("");
+        $("#D").text(D.toString());
+        $("#PageNumber").text(data.data.pageNum);
+        for (let i = 0; i < data.data.list.length; i++) {
+            let id = data.data.list[i].id;
+            let pageNum = data.data.pageNum;
+            let pageSize = data.data.pageSize;
+            let dom = "<tr>" +
+                "<td class='success'>" + (data.data.list[i].id == null ? (i + 1) : data.data.list[i].id) + "</td>" +
+                "<td class='error'>" + (data.data.list[i].username == null ? "无" : data.data.list[i].username) + "</td>" +
+                "<td class='warning'>" + (data.data.list[i].grade == null ? "无" : data.data.list[i].grade) + "</td>" +
+                "<td class='success'>" +
+                "<a href='#' onclick='addManager(1,\"" + id + "\"," + pageNum + "," + pageSize + ");'>升级</a>" +
+                " | <a href='#' onclick='deleteManager(0,\"" + id + "\"," + pageNum + "," + pageSize + ");'>降级</a>" +
+                "</td>" +
+                "</tr>";
+            $("#data").append(dom);
+        }
+        data.data.isFirstPage == true ? first = true : first = false;
+        data.data.isLastPage == true ? last = true : last = false;
+    }
+
+    //添加权限
+    function addManager(number, id, pageNum, pageSize) {
+        if (confirm("是否升级") === true) {
+            $.ajax({
+                url: "http://localhost:7001/provider-serv/consumer/upgrade",
+                type: "POST",
+                data: {"grade": number, "id": id},
+                dataType: "json",
+                success: function (data) {
+                    if (data.code === 200) {
+                        alert("升级成功");
+                        selectUser(pageNum, pageSize);
+                    } else {
+                        alert("升级失败：" + data.msg);
+                    }
+                }
+            });
+        } else {
+            return false;
+        }
+    }
+
+    //删除权限
+    function deleteManager(number, id, pageNum, pageSize) {
+        if (confirm("是否降级") === true) {
+            $.ajax({
+                url: "http://localhost:7001/provider-serv/consumer/upgrade",
+                type: "POST",
+                data: {"grade": number, "id": id},
+                dataType: "json",
+                success: function (data) {
+                    if (data.code === 200) {
+                        alert("降级成功");
+                        selectUser(pageNum, pageSize);
+                    } else {
+                        alert("降级失败：" + data.msg);
+                    }
+                }
+            });
+        } else {
+            return false;
+        }
+    }
+
+    //删除用户
+    function deleteUser(id, pageNum, pageSize) {
+        if (confirm("是否删除") === true) {
+            $.ajax({
+                url: "http://localhost:7001/provider-serv/consumer/delete",
+                type: "GET",
+                data: {"id": id},
+                dataType: "json",
+                success: function (data) {
+                    if (data.code === 200) {
+                        alert("删除成功");
+                        selectUser(pageNum, pageSize);
+                    } else {
+                        alert(data.msg);
+                    }
+                }
+            });
+        } else {
+            return false;
+        }
+    }
+
+    //获取cookie
+    function getMyCookie(key) {
+        let val = "";
+        // 对cookie操作
+        let cookies = document.cookie;
+        cookies = cookies.replace(/\s/, "");
+        let cookie_array = cookies.split(";");
+        for (let i = 0; i < cookie_array.length; i++) {
+            let cookie = cookie_array[i];
+            let array = cookie.split("=");
+            if (array[0] === key) {
+                val = array[1];
+            }
+        }
+        return val;
+    }
+</script>
+</body>
+</html>

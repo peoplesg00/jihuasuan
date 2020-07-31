@@ -1,0 +1,6 @@
+com\atli\provider\service\impl\UserServiceImpl.class
+com\atli\provider\dao\UserDao.class
+com\atli\provider\service\UserService.class
+com\atli\provider\controller\BaseExceptionHandler.class
+com\atli\provider\UserProviderApplication.class
+com\atli\provider\controller\UserController.class

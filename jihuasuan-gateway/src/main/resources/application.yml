@@ -1,0 +1,46 @@
+#server:
+#  port: 7001
+#spring:
+#  application:
+#    name: gateway-provider
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: localhost
+#    gateway:
+#      routes: #由数组[备由就是指当请求满足什么的亲件的时候转友到哪个似服务上]
+#        - id: provider_routes #当前路由发的标识，要求唯一，默认是UUID
+#          #uri: http://localhost:8001 请求最终要被转发到的地址
+#          uri: lb://nacos-consumer #lb表示从nacos中按名称获取微服务，并遵循负载均衡
+#          order: 1 #路由的优先级，数字越小代表路由的优先级越高
+#          predicates: #断言（条件判断，返回值是boolean转发请求要满足的条件）
+#            - Path=/provider-serv/** #当请求路径满足Path指定的规则时，此路由信息才会正常转发
+#            #- Age=18,60 #年龄判断
+#          filters: #过滤器（在请求传递过程中对请求做一些手脚）
+#            - StripPrefix=1 #在请求转发之前去掉一层路径
+#            - Log=true,false
+#      discovery:
+#        locator:
+#          enabled: true #让gateway可以发现nacos中的微服务
+#      globalcors:
+#        cors-configurations:
+#          '[/**]':
+#            allowedHeaders: "*"
+#            allowedOrigins: "*"
+#            allowedMethods:
+#              - GET
+#                POST
+#                DELETE
+#                PUT
+#                OPTION
+#  zipkin:
+#    base-url: http://127.0.0.1:9411/  #zipkin server 的请求地址
+#    discovery-client-enabled: false  #让nacos把它当做一个URL，而不要当作为微服务
+#  sleuth:
+#    sampler:
+#      probability: 1.0  #采样后的百分比
+#  链路追踪结果  微服务名称     traceid（全局id）  spanid（各个微服务id）  是否将链路追踪结果输出到第三方平台
+#  gateway-provider,3fe1ebebf9ad9532,3fe1ebebf9ad9532,false
+#  user-provider,3fe1ebebf9ad9532,2e6fc868ab7bb629,false
+#  nacos-consumer,3fe1ebebf9ad9532,fa6009c9a713c873,false
+#

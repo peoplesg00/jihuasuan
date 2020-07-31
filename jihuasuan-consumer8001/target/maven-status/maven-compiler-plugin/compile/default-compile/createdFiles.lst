@@ -1,0 +1,13 @@
+com\atli\consumer\controller\UserConsumerController.class
+com\atli\consumer\config\ApplicationContextConfig.class
+com\atli\consumer\service\fallback\AccountServiceFallBackFactory$1.class
+com\atli\consumer\controller\AccountConsumerController.class
+com\atli\consumer\service\AccountService.class
+com\atli\consumer\config\ExceptionHandlerPage.class
+com\atli\consumer\service\fallback\AccountServiceFallBackFactory.class
+com\atli\consumer\service\UserService.class
+com\atli\consumer\config\ExceptionHandlerPage$ResponseData.class
+com\atli\consumer\service\fallback\UserServiceFallBackFactory.class
+com\atli\consumer\NacosConsumerMain8001.class
+com\atli\consumer\service\TestServiceImpl.class
+com\atli\consumer\service\fallback\UserServiceFallBackFactory$1.class

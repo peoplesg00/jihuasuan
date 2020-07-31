@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/login.css"/>
+    <script type="text/javascript" src="../static/js/jquery-3.4.1.js"></script>
+    <script type="text/javascript" src="../static/js/bootstrap.js"></script>
+</head>
+<body>
+<div class="login-box">
+    <h2>Login</h2>
+    <form>
+        <div class="user-box">
+            <input type="text" name="" required="" id="Username">
+            <label for="Username">用户名</label>
+        </div>
+        <div class="user-box">
+            <input type="password" name="" required="" id="Password">
+            <label for="Password">密码</label>
+        </div>
+        <div id="id">
+            <input type="text" id="code"><img id="img" src="" title="区分大小写" hidden="hidden" alt="">
+            <span id="verification">验证码</span>
+        </div>
+        <a href="#" id="Submit">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            登录
+        </a>
+        <a href="register.html" style="margin-left: 20px;">注册</a>
+        <a href="restPassword.html" style="margin-left: 10px;">忘记密码</a>
+    </form>
+</div>
+<script type="text/javascript">
+    //获取验证码
+    $("#verification").on("click", function () {
+        $("#verification").hide();
+        $("#img").show();
+        $.ajax({
+            url: "http://localhost:7001/provider-serv/consumer/code",
+            type: "GET",
+            crossDomain: true,  //跨域
+            //xhrFields: {withCredentials: true},//跨域请求带上cookie
+            success: function (data) {
+                if (data.code === 200) {
+                    $("#img").attr('src', "../static/img/one.png");
+                    localStorage.setItem("code", data.data);
+                }
+            },
+            error: function () {
+                alert("验证码更新失败》》》");
+            }
+        });
+    });
+    //刷新验证码
+    $("#img").on("click", function () {
+        $("#verification").hide();
+        getCode();
+    });
+
+    function getCode() {
+        $.ajax({
+            url: "http://localhost:7001/provider-serv/consumer/code",
+            type: "GET",
+            crossDomain: true,  //跨域
+            //xhrFields: {withCredentials: true},//跨域请求带上cookie
+            success: function (data) {
+                if (data.code === 200) {
+                    $("#img").attr('src', $("#img").attr("src") + '?' + new Date().getTime());
+                    localStorage.setItem("code", data.data);
+                }
+            },
+            error: function () {
+                alert("验证码更新失败》》》");
+            }
+        });
+    }
+
+    //登录
+    $("#Submit").on("click", function () {
+        let name = $("#Username").val();
+        let pass = $("#Password").val();
+        let Data = null;
+        let code = localStorage.getItem("code");
+        if (name.length > 0 && pass.length > 0) {
+            Data = {"username": name, "password": pass};
+        } else {
+            alert("请勿留空！");
+            return false;
+        }
+        if ($("#code").val() !== code) {
+            alert("验证码错误");
+            getCode();
+            return false;
+        }
+        $.ajax({
+            url: "http://localhost:7001/provider-serv/consumer/login",
+            type: "POST",
+            data: JSON.stringify(Data),
+            dataType: "text",
+            processData: false,   //false jQuery不要去处理发送的数据
+            contentType: "application/json;charset=utf-8",  //false jQuery不要去设置Content-Type请求头"application/json;charset=UTF-8"
+            crossDomain: true,  //跨域
+            //xhrFields: {withCredentials: true},//跨域请求带上cookie
+            success: function (data) {
+                data = JSON.parse(data);
+                if (data.code === 200) {
+                    alert("登录成功");
+                    localStorage.setItem("user", name);
+                    localStorage.setItem("grade", data.data);
+                    if (data.data < 1) {
+                        window.location.href = "./main.html";
+                    } else {
+                        window.location.href = "./admin.html";
+                    }
+                } else {
+                    localStorage.removeItem("code");
+                    alert(data.msg);
+                    window.location.href = "./login.html";
+                }
+            },
+            error: function (data) {
+                localStorage.removeItem("code");
+                alert("登录失败：" + data.msg);
+                window.location.href = "./login.html";
+            }
+        });
+        return false;
+    });
+</script>
+</body>
+</html>

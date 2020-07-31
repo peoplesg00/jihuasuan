@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="jihuasuan-provider9003" />
+        <module name="account-provider" />
+        <module name="user-provider" />
+        <module name="jihuasuan-userprovider9004" />
+        <module name="api-commons" />
+        <module name="jihuasuan-gateway" />
+        <module name="jihuasuan-provider9002" />
+        <module name="jihuasuan-consumer8001" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="jihuasuan-provider9001" target="1.8" />
+      <module name="jihuasuan-userprovider9004" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

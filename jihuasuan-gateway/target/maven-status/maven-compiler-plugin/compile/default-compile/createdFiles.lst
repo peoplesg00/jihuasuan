@@ -1,0 +1,8 @@
+com\atli\provider\filter\LogGatewayFilterFactory.class
+com\atli\provider\predicate\AgeRoutePredicateFactory$1.class
+com\atli\provider\GateWayApplication.class
+com\atli\provider\filter\LogGatewayFilterFactory$Config.class
+com\atli\provider\filter\AuthGlobalFilter.class
+com\atli\provider\predicate\AgeRoutePredicateFactory$Config.class
+com\atli\provider\predicate\AgeRoutePredicateFactory.class
+com\atli\provider\filter\LogGatewayFilterFactory$1.class

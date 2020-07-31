@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>账单系统</title>
+    <link rel="stylesheet" href="../static/css/bootstrap.css">
+    <script src="../static/js/jquery-3.4.1.js"></script>
+    <script src="../static/js/bootstrap.js"></script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .wrapper {
+            position: relative;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            max-width: 100%;
+            max-height: 100%;
+            background: deepskyblue;
+            overflow: hidden;
+        }
+
+        .panel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            margin: auto;
+        }
+
+        .panel._active {
+            z-index: 10;
+        }
+
+        .trans-layer,
+        .section {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+        .trans-layer {
+            background: #000;
+            transform: translateY(-100%) skew(0) rotate(0) scale(2);
+            border-radius: 50%;
+            transition: all 500ms ease-in-out;
+            transition-delay: 500ms;
+        }
+
+        ._active .trans-layer {
+            transform: translateY(0) skew(0) rotate(0) scale(2);
+            transition-delay: 0ms;
+        }
+
+        .section {
+            transform: translateY(100%);
+            transition: all 500ms ease-in-out;
+            transition-delay: 0ms;
+            background: #343434;
+        }
+
+        ._active .section {
+            transform: translateY(0);
+            transition-delay: 500ms;
+        }
+
+        .section-content {
+            display: flex;
+            flex-flow: column;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-family: arial;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 500ms ease;
+            transition-delay: 0s;
+        }
+
+        ._active .section-content {
+            opacity: 1;
+            transform: translateY(0px);
+            transition-delay: 1000ms;
+        }
+
+        .nav-dots {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            z-index: 20;
+            width: 40px;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            margin: 20px auto;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            transition: all 300ms ease-out;
+        }
+
+        .nav-dot.active {
+            background: red;
+        }
+
+        .next-btn,
+        .prev-btn {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            z-index: 20;
+            border: 1px solid #fff;
+            color: #fff;
+            line-height: 30px;
+            text-align: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .next-btn {
+            bottom: 10px;
+            right: 14px;
+        }
+
+        .prev-btn {
+            top: 10px;
+            right: 14px;
+        }
+
+        a {
+            width: 2.5rem;
+            height: auto;
+            margin: 0 2.5rem;
+            text-decoration: none;
+            color: #ffaa00;
+            font-size: 1.25rem;
+            background-color: #343434;
+            padding: 0.25rem;
+            border-radius: 1.25rem;
+        }
+
+        a:hover {
+            text-decoration: none;
+            color: springgreen;
+        }
+    </style>
+</head>
+<body>
+<div style="float: left;" id="login">
+    <a class="btn bg-danger" href="login.html">登录</a>
+    <a class="btn bg-danger" href="register.html">注册</a>
+</div>
+<div style="float: right;margin-right: 10px;" id="showName" hidden="hidden">
+    <a class="btn bg-danger" href="main.html">账单管理</a>
+    <a class="btn bg-danger" href="#" id="loginOut">注销</a>
+</div>
+<div class="wrapper">
+    <div class="prev-btn"><span class="fa fa-angle-up"></span></div>
+    <div class="next-btn"><span class="fa fa-angle-down"></span></div>
+    <div class="nav-dots">
+        <div data-slide="1" class="nav-dot">
+        </div>
+        <div data-slide="2" class="nav-dot">
+        </div>
+        <div data-slide="3" class="nav-dot">
+        </div>
+        <div data-slide="4" class="nav-dot">
+        </div>
+        <div data-slide="5" class="nav-dot">
+        </div>
+    </div>
+    <div data-slide="1" class="panel">
+        <div id="layer-1" class="trans-layer"></div>
+        <section id="section-1" class="section">
+            <div class="section-content">
+                <h1>法立于上则俗成于下</h1>
+            </div>
+        </section>
+    </div>
+    <div data-slide="2" class="panel">
+        <div id="layer-2" class="trans-layer"></div>
+        <section id="section-2" class="section">
+            <div class="section-content">
+                <h1>罪疑惟轻，功疑惟重。与其杀不辜，宁失不经</h1>
+            </div>
+        </section>
+    </div>
+    <div data-slide="3" class="panel">
+        <div id="layer-3" class="trans-layer"></div>
+        <section id="section-3" class="section">
+            <div class="section-content">
+                <h1>制治于未乱，保邦于未危</h1>
+            </div>
+        </section>
+    </div>
+    <div data-slide="4" class="panel">
+        <div id="layer-4" class="trans-layer"></div>
+        <section id="section-4" class="section">
+            <div class="section-content">
+                <h1>治国无其法则乱，守法而不变则衰</h1>
+            </div>
+        </section>
+    </div>
+    <div data-slide="5" class="panel">
+        <div id="layer-5" class="trans-layer"></div>
+        <section id="section-5" class="section">
+            <div class="section-content">
+                <h1>有法而不循法，法虽善与无法等</h1>
+            </div>
+        </section>
+    </div>
+</div>
+</body>
+<script>
+    $('.wrapper').each(function () {
+        var $slider = $(this);
+        var numberOfSlides = $slider.find('.panel').length;
+
+        $slider.find('.panel:eq(0)').addClass('_active');
+        $slider.find('.nav-dot:eq(0)').addClass('active');
+
+        var $activeSlide = $slider.find('.panel._active');
+        var $nextBtn = $slider.find('.next-btn');
+        var $prevBtn = $slider.find('.prev-btn');
+
+        $('.nav-dot').on('click', function () {
+            var slideToGo = $(this).data('slide');
+            goToSlide(slideToGo);
+        });
+
+        $slider.on('slide.changed', function () {
+            console.log('slide changed !');
+            $('.nav-dot').removeClass('active');
+            var $activeDot = $('.nav-dot[data-slide="' + $('.panel._active').data('slide') + '"]');
+            $activeDot.addClass('active');
+        });
+
+        $nextBtn.on('click', function (event) {
+            nextSlide();
+        });
+
+        $prevBtn.on('click', function (event) {
+            prevSlide();
+        });
+
+        function nextSlide() {
+            $activeSlide = $slider.find('.panel._active');
+            var $nextSlide = $activeSlide.next('.panel');
+            $activeSlide.removeClass('_active');
+            $nextSlide.addClass('_active');
+
+            //$activeSlide = $nextSlide;
+
+            var slideIndex = $slider.find('.panel._active').index('.panel');
+            console.log(slideIndex);
+
+            if (slideIndex >= numberOfSlides || slideIndex <= -1) {
+                firstSlide();
+                $slider.trigger('slide.changed');
+
+            } else {
+                $slider.trigger('slide.changed');
+            }
+
+        }
+
+        function prevSlide() {
+            $activeSlide = $slider.find('.panel._active');
+
+            var $prevSlide = $activeSlide.prev('.panel');
+            //console.log($prevSlide);
+            $activeSlide.removeClass('_active');
+            $prevSlide.addClass('_active');
+            //$activeSlide = $prevSlide;
+
+            var slideIndex = $slider.find('.panel._active').index();
+            console.log(slideIndex);
+
+            if (typeof $prevSlide === 'undefined' || $prevSlide === null || $prevSlide.length == -1 || slideIndex <= -1) {
+                lastSlide();
+                $slider.trigger('slide.changed');
+            } else {
+                $slider.trigger('slide.changed');
+            }
+
+        }
+
+        function firstSlide() {
+            $('.panel._active').removeClass('_active');
+            $slider.find('.panel:eq(0)').addClass('_active');
+            $activeSlide = $slider.find('.panel:eq(0)');
+
+        }
+
+        function lastSlide() {
+            //console.log('last');
+            $('.panel._active').removeClass('_active');
+            $slider.find('.panel').eq(numberOfSlides - 1).addClass('_active');
+            //$activeSlide = $slider.find('.panel:eq(numberOfSlides)');
+
+        }
+
+        function goToSlide(slideToGo) {
+            $('.panel._active').removeClass('_active');
+            $slider.find('.panel').eq(slideToGo - 1).addClass('_active');
+            $activeSlide = $slider.find('.panel').eq(slideToGo - 1).addClass('_active');
+            $slider.trigger('slide.changed');
+        }
+    });
+
+    //验证是否登陆
+    (function ($) {
+        let name = getMyCookie("username");
+        if (name.length > 0) {
+            $("#login").hide();
+            $("#showName").show();
+            localStorage.setItem("user", name);
+        }
+    })(jQuery);
+
+    //获取cookie
+    function getMyCookie(key) {
+        let val = "";
+        // 对cookie操作
+        let cookies = document.cookie;
+        cookies = cookies.replace(/\s/, "");
+        let cookie_array = cookies.split(";");
+        for (let i = 0; i < cookie_array.length; i++) {
+            let cookie = cookie_array[i];
+            let array = cookie.split("=");
+            if (array[0] === key) {
+                val = array[1];
+            }
+        }
+        return val;
+    }
+
+    //退出登录
+    $("#loginOut").on("click", function () {
+        if (confirm("是否注销") === true) {
+            $.ajax({
+                url: "http://localhost:7001/provider-serv/consumer/loginOut",
+                type: "GET",
+                data: {"username": name},
+                crossDomain: true,
+                xhrFields: {withCredentials: true},
+                success: function () {
+                    window.location.href = "./login.html";
+                }
+            });
+        } else {
+            return false;
+        }
+    });
+</script>
+</html>

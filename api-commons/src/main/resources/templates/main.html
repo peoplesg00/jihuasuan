@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>账单系统后台</title>
+    <link rel="stylesheet" href="../static/css/layui.css">
+    <link rel="stylesheet" href="../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../static/css/bootstrap-theme.css">
+    <link rel="stylesheet" href="../static/css/main.css">
+    <script src="../static/js/layui.js"></script>
+    <script src="../static/js/jquery-3.4.1.js"></script>
+    <script src="../static/js/jquery.cookie.js"></script>
+    <script src="../static/js/jquery.base64.js"></script>
+    <script src="../static/js/jquery.dataTables.js"></script>
+    <script src="../static/js/bootstrap.js"></script>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">账单系统管理界面</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;" id="userName"></a>
+                <dl class="layui-nav-child">
+                    <dd><a href="">基本资料</a></dd>
+                    <dd><a href="">安全设置</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="#" id="getOut">注销</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed" id="admin">
+                    <a class="" href="javascript:;">账单</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="#" id="month">月度账单</a></dd>
+                        <dd><a href="#" id="year">年度账单</a></dd>
+                        <dd><a href="#" id="all">所有账单</a></dd>
+                        <dd><a href="#" id="in">账单录入</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;" id="Account" hidden="hidden">
+            <h2 id="D"></h2>
+            <div class="table-wrapper">
+                <table class="fl-table">
+                    <thead>
+                    <tr>
+                        <th>账单ID</th>
+                        <th>日期</th>
+                        <th>摘要</th>
+                        <th>类型</th>
+                        <th>收入金额</th>
+                        <th>支出金额</th>
+                        <th>持有者</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="data">
+
+                    <tbody>
+                </table>
+                <div style="width: 300px; margin:20px auto;">
+                    <button class="btn bg-success" id="LastPage">上一页</button>
+                    <label class="btn bg-success">第<span style="margin: 5px;" id="PageNumber"></span>页</label>
+                    <button class="btn bg-success" id="NextPage">下一页</button>
+                </div>
+            </div>
+        </div>
+        <!--录入账单-->
+        <div style="padding: 15px;" id="Input">
+            <h2>账单录入</h2>
+            <div class="form-group">
+                <form style="width: 500px;height: auto;margin: auto;">
+                    <label for="briefly" class="label">摘要</label>
+                    <div>
+                        <input type="text" class="form-control" id="briefly">
+                    </div>
+                    <label for="type" class="label">类型</label>
+                    <div>
+                        <select id="type" class="form-control">
+                            <option selected="selected">收入</option>
+                            <option>支出</option>
+                        </select>
+                    </div>
+                    <label for="income" class="label">收入</label>
+                    <div>
+                        <input type="text" class="form-control" id="income">
+                    </div>
+                    <label for="expenditure" class="label">支出</label>
+                    <div>
+                        <input type="text" class="form-control" id="expenditure">
+                    </div>
+                    <label for="date" class="label">日期</label>
+                    <div>
+                        <input type="date" class="form-control" id="date">
+                    </div>
+                    <div style="margin: 20px 10px;">
+                        <button id="submit" class="btn bg-success">确定</button>
+                        <button id="reset" class="btn bg-warning">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        @lijinru.com - 备案号：d3a3b367076643a38222c462392344d7
+    </div>
+</div>
+<script>
+    let offset = 1;
+    let limit = 10;
+    let number = "";
+    let last = false;
+    let first = false;
+    const name = getMyCookie("username").length === 0 ? localStorage.getItem("user") : getMyCookie("username");
+    const grade = getMyCookie("grade").length === 0 ? localStorage.getItem("grade") : getMyCookie("grade");
+    if (grade !== null && grade === "0" && name.length > 0) {
+        $("#userName").text("用户：" + name);
+    } else {
+        alert("未登录");
+        window.location.href = "./login.html"
+    }
+    //退出登录
+    $("#getOut").on("click", function () {
+        if (confirm("是否注销") === true) {
+            $.ajax({
+                url: "http://localhost:7001/provider-serv/consumer/loginOut",
+                type: "GET",
+                data: {"username": name},
+                crossDomain: true,
+                //xhrFields: {withCredentials: true},
+                success: function (data) {
+                    if (data.code === 200) {
+                        localStorage.removeItem("user");
+                        localStorage.removeItem("grade");
+                        localStorage.removeItem("code");
+                        window.location.href = "./login.html";
+                    }
+                }
+            });
+        } else {
+            return false;
+        }
+    });
+    //Month
+    $("#month").on("click", function () {
+        $("#Input").hide();
+        selectByMonth(1, 10, name);
+    });
+    //Year
+    $("#year").on("click", function () {
+        $("#Input").hide();
+        selectByYear(1, 10, name);
+    });
+    //所有
+    $("#all").on("click", function () {
+        $("#Input").hide();
+        getAllAccount(1, 10, name);
+    });
+    //上一页
+    $("#LastPage").on("click", function () {
+        if (first === true) {
+            first = false;
+            alert("已为第一页");
+            return false;
+        }
+        offset -= 1;
+        if (number === "M") {
+            selectByMonth(offset, limit, name);
+        } else if (number === "Y") {
+            selectByYear(offset, limit, name);
+        } else if (number === "A") {
+            getAllAccount(offset, limit, name);
+        }
+    });
+    //下一页
+    $("#NextPage").on("click", function () {
+        if (last === true) {
+            last = false;
+            alert("已为最后一页");
+            return false;
+        }
+        offset += 1;
+        if (number === "M") {
+            selectByMonth(offset, limit, name);
+        } else if (number === "Y") {
+            selectByYear(offset, limit, name);
+        } else if (number === "A") {
+            getAllAccount(offset, limit, name);
+        }
+    });
+
+    //月份账单
+    function selectByMonth(offset, limit, name) {
+        $.ajax({
+            url: "http://localhost:7001/provider-serv/consumer/selectByMonth",
+            type: "GET",
+            data: {"offset": offset, "limit": limit, "founder": name},
+            dataType: "json",
+            success: function (data) {
+                if (data.code === 200 && data.data.list.length > 0) {
+                    number = "M";
+                    showData(data, "月度账单");
+                } else {
+                    alert("已为最后一页" + data.code);
+                }
+            }
+        });
+    }
+
+    //年份账单
+    function selectByYear(offset, limit, name) {
+        $.ajax({
+            url: "http://localhost:7001/provider-serv/consumer/selectByYear",
+            type: "GET",
+            data: {"offset": offset, "limit": limit, "founder": name},
+            dataType: "json",
+            success: function (data) {
+                if (data.code === 200 && data.data.list.length > 0) {
+                    number = "Y";
+                    showData(data, "年度账单");
+                } else {
+                    alert("已为最后一页" + data.code);
+                }
+            }
+        });
+    }
+
+    //所有账单
+    function getAllAccount(offset, limit, name) {
+        $.ajax({
+            url: "http://localhost:7001/provider-serv/consumer/account/queryAllByLimit",
+            type: "GET",
+            data: {"offset": offset, "limit": limit, "founder": name},
+            dataType: "json",
+            success: function (data) {
+                if (data.code === 200 && data.data.list.length > 0) {
+                    number = "A";
+                    showData(data, "所有账单");
+                } else {
+                    alert("已为最后一页" + data.code);
+                }
+            }
+        });
+    }
+
+    //删除数据
+    function deleteData(id, offset, limit) {
+        if (confirm("是否删除数据") === true) {
+            $.ajax({
+                url: "http://localhost:7001/provider-serv/consumer/delete",
+                type: "GET",
+                data: {"id": id, "offset": offset, "limit": limit, "founder": name, "type": number, "grade": grade},
+                dataType: "json",
+                success: function (data) {
+                    if (data.code === 200) {
+                        alert(data.msg);
+                        if (number === "M") {
+                            selectByMonth(offset, limit, name);
+                        } else if (number === "Y") {
+                            selectByYear(offset, limit, name);
+                        } else {
+                            getAllAccount(offset, limit, name);
+                        }
+                    } else {
+                        alert(data.msg);
+                    }
+                }
+            })
+        } else {
+            return false;
+        }
+    }
+
+    //数据展示
+    function showData(data, D) {
+        $("#Account").show();
+        $("#data").html("");
+        $("#D").text(D.toString());
+        $("#PageNumber").text(data.data.pageNum);
+        for (let i = 0; i < data.data.list.length; i++) {
+            let id = $.trim(data.data.list[i].id == null ? data.data.list[i].create_time : data.data.list[i].id);
+            let dom = "<tr>" +
+                "<td class='success'>" + (data.data.list[i].id == null ? (i + 1) : data.data.list[i].id) + "</td>" +
+                "<td class='error'>" + (data.data.list[i].create_time == null ? "无" : data.data.list[i].create_time) + "</td>" +
+                "<td class='warning'>" + (data.data.list[i].type == null ? "无" : data.data.list[i].type) + "</td>" +
+                "<td class='info'>" + (data.data.list[i].briefly == null ? "无" : data.data.list[i].briefly) + "</td>" +
+                "<td class='error'>" + (data.data.list[i].income == null ? 0 : data.data.list[i].income) + "</td>" +
+                "<td class='error'>" + (data.data.list[i].expenditure == null ? 0 : data.data.list[i].expenditure) + "</td>" +
+                "<td class='info'>" + (data.data.list[i].founder == null ? "无" : data.data.list[i].founder) + "</td>" +
+                "<td class='success'>" +
+                "<a href='#' onclick='deleteData( \"" + id + "\"," + offset + "," + limit + ")'>删除</a></td>" +
+                "</tr>";
+            $("#data").append(dom);
+        }
+        data.data.isLastPage === true ? last = true : last = false;
+        data.data.isFirstPage === true ? first = true : first = false;
+    }
+
+    //账单录入展示
+    $("#in").on("click", function () {
+        $("#Account").hide();
+        $("#Input").show();
+    });
+
+    //账单录入
+    $("#submit").on("click", function () {
+        let briefly = $("#briefly").val();
+        let type = $("#type").select().val();
+        let income = $("#income").val();
+        let expenditure = $("#expenditure").val();
+        let time = $("#date").val();
+        let data = null;
+        if (briefly.length === 0 || type.length === 0 || (income.length === 0 && expenditure.length === 0) || time.length === 0) {
+            alert("请不要留空");
+            alert(briefly + type + income + expenditure + time);
+            return false;
+        } else {
+            data = {
+                "create_time": time,
+                "briefly": briefly,
+                "type": type,
+                "income": income,
+                "expenditure": expenditure,
+                "founder": name
+            };
+        }
+        insert(data);
+    });
+
+    function insert(data) {
+        $.ajax({
+            url: "http://localhost:7001/provider-serv/consumer/insert",
+            type: "POST",
+            data: JSON.stringify(data),
+            dataType: "text",
+            processData: false,   //false jQuery不要去处理发送的数据
+            contentType: "application/json;charset=utf-8",  //false jQuery不要去设置Content-Type请求头"application/json;charset=UTF-8"
+            crossDomain: true,  //跨域
+            //xhrFields: {withCredentials: true},
+            success: function (data) {
+                data = JSON.parse(data);
+                if (data.code === 200) {
+                    alert("账单添加成功");
+                    window.location.href = "./main.html";
+                } else {
+                    alert("账单添加失败");
+                    window.location.href = "./main.html";
+                }
+            },
+            error: function () {
+                alert("网络错误");
+            }
+        });
+    }
+
+    //取消
+    $("#reset").on("click", function () {
+        window.location.href = "./main.html";
+    });
+
+    //获取cookie
+    function getMyCookie(key) {
+        let val = "";
+        // 对cookie操作
+        let cookies = document.cookie;
+        cookies = cookies.replace(/\s/, "");
+        let cookie_array = cookies.split(";");
+        for (let i = 0; i < cookie_array.length; i++) {
+            let cookie = cookie_array[i];
+            let array = cookie.split("=");
+            if (array[0] === key) {
+                val = array[1];
+            }
+        }
+        return val;
+    }
+</script>
+</body>
+</html>

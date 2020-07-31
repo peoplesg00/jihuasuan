@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <link rel="stylesheet" href="../static/css/bootstrap.css">
+    <link rel="stylesheet" href="../static/css/register.css">
+</head>
+<body>
+<div class="login-box">
+    <h2>Registration</h2>
+    <form>
+        <div class="user-box">
+            <input type="text" name="" required="" id="Username">
+            <label for="Username">用户名</label>
+        </div>
+        <div class="user-box">
+            <input type="password" name="" required="" id="Password">
+            <label for="Password">密码</label>
+        </div>
+        <div class="user-box">
+            <input type="password" name="" required="" id="Password2">
+            <label for="Password">确认密码</label>
+        </div>
+        <div class="user-box">
+            <input type="text" name="" required="" id="Question">
+            <label for="Password">密保问题</label>
+        </div>
+        <div class="user-box">
+            <input type="text" name="" required="" id="Answer">
+            <label for="Password">密保答案</label>
+        </div>
+        <a href="#" id="Submit">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            注册
+        </a>
+        <a href="login.html" style="margin-left: 150px;">登录</a>
+    </form>
+</div>
+<script src="../static/js/jquery-3.4.1.js"></script>
+<script src="../static/js/bootstrap.js"></script>
+<script>
+    $(Document).ready(function () {
+        $("#Submit").on("click", function () {
+            const name = $("#Username").val();
+            const pass = $("#Password").val();
+            const pass2 = $("#Password2").val();
+            const question = $("#Question").val();
+            const answer = $("#Answer").val();
+            let Data = null;
+            if (name == null || pass == null || pass2 == null || question == null || answer == null) {
+                alert("请勿留空");
+                return false;
+            }
+            if (pass !== pass2) {
+                alert("密码不一致");
+                return false;
+            }
+            Data = {"username": name, "password": pass, "question": question, "answer": answer};
+            alert(Data);
+            $.ajax(
+                {
+                    url: "http://localhost:7001/provider-serv/consumer/register",
+                    type: "POST",
+                    data: JSON.stringify(Data),
+                    dataType: "text",
+                    processData: false,   //false jQuery不要去处理发送的数据
+                    contentType: "application/json;charset=utf-8",  //false jQuery不要去设置Content-Type请求头"application/json;charset=UTF-8"
+                    crossDomain: true,  //跨域
+                    //xhrFields: {withCredentials: true},
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        if (data.code === 200) {
+                            alert("注册成功");
+                            window.location.href = "./login.html";
+                        }
+                    },
+                    error: function () {
+                        alert("网络错误");
+                    }
+                }
+            );
+        });
+    });
+</script>
+</body>
+</html>
